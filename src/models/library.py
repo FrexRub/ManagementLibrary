@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
     from src.models.book import Book
 
 
-class BorrowedBooks(Base):
+class ReceivingBook(Base):
     __table_args__ = (
         UniqueConstraint("reader_id", "book_id", name="idx_unique_reader_book"),
     )

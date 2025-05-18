@@ -1,8 +1,8 @@
 """create table books
 
-Revision ID: b06b382b10f3
-Revises: 761c0d0f7e96
-Create Date: 2025-05-18 17:35:12.789963
+Revision ID: e756558cd218
+Revises: b261e2a8d35d
+Create Date: 2025-05-18 19:09:09.128788
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "b06b382b10f3"
-down_revision: Union[str, None] = "761c0d0f7e96"
+revision: str = "e756558cd218"
+down_revision: Union[str, None] = "b261e2a8d35d"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

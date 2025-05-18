@@ -1,8 +1,8 @@
-"""create super users
+"""add users
 
-Revision ID: 486c96cdc0ac
-Revises: 3494d3cf70e0
-Create Date: 2025-05-18 17:37:31.523457
+Revision ID: f321cc85be80
+Revises: 158d42af6d6d
+Create Date: 2025-05-18 19:12:04.716074
 
 """
 
@@ -16,19 +16,19 @@ from src.models.user import User
 
 
 # revision identifiers, used by Alembic.
-revision: str = "486c96cdc0ac"
-down_revision: Union[str, None] = "3494d3cf70e0"
+revision: str = "f321cc85be80"
+down_revision: Union[str, None] = "158d42af6d6d"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
 def create_hash_password(password: str) -> bytes:
     """
-    Создание хеш пароля
-    :param password: пароль
+    РЎРѕР·РґР°РЅРёРµ С…РµС€ РїР°СЂРѕР»СЏ
+    :param password: РїР°СЂРѕР»СЊ
     :type password: str
     :rtype: bytes
-    :return: хеш значение пароля
+    :return: С…РµС€ Р·РЅР°С‡РµРЅРёРµ РїР°СЂРѕР»СЏ
     """
     salt = bcrypt.gensalt()
     pwd_bytes: bytes = password.encode()

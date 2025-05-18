@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import DateTime, String, Integer, CheckConstraint
@@ -6,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from src.models.base import Base
 
 if TYPE_CHECKING:
-    from src.models.library import BorrowedBooks
+    from src.models.library import ReceivingBook
 
 
 class Book(Base):
@@ -31,7 +32,7 @@ class Book(Base):
         nullable=False,
     )
 
-    users: Mapped[list["BorrowedBooks"]] = relationship(back_populates="book")
+    users: Mapped[list["ReceivingBook"]] = relationship(back_populates="book")
 
     @validates("count")
     def validate_count(self, key, count):
