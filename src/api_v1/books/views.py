@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from fastapi import APIRouter, Depends, status, Response
+from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,9 +11,9 @@ from src.core.exceptions import (
 )
 from src.api_v1.books.crud import (
     create_book,
-    # get_books,
-    # update_book_db,
-    # delete_book_db,
+    get_books,
+    update_book_db,
+    delete_book_db,
 )
 from src.api_v1.books.dependencies import book_by_id
 from src.api_v1.users.depends import (
@@ -56,75 +56,74 @@ async def new_book(
         return result
 
 
-#
-# @router.get(
-#     "/list",
-#     response_model=Page[OutBookFoolSchemas],
-#     status_code=status.HTTP_200_OK,
-# )
-# async def get_list_books(
-#     session: AsyncSession = Depends(get_async_session),
-#     user: "User" = Depends(current_user_authorization),
-# ):
-#     return paginate(await get_books(session=session))
-#
-#
-# @router.get("/{book_id}/", response_model=OutBookSchemas)
-# async def get_book(
-#     user: "User" = Depends(current_user_authorization),
-#     book: Book = Depends(book_by_id),
-# ):
-#     return book
-#
-#
-# @router.put("/{book_id}/", response_model=OutBookSchemas)
-# async def update_book(
-#     book_update: BookUpdateSchemas,
-#     user: "User" = Depends(current_superuser_user),
-#     book: Book = Depends(book_by_id),
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     try:
-#         res = await update_book_db(session=session, book=book, book_update=book_update)
-#     except ErrorInData as exp:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail=f"{exp}",
-#         )
-#     else:
-#         return res
-#
-#
-# @router.patch("/{book_id}/", response_model=OutBookSchemas)
-# async def update_book(
-#     book_update: BookUpdatePartialSchemas,
-#     user: "User" = Depends(current_superuser_user),
-#     book: Book = Depends(book_by_id),
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     try:
-#         res = await update_book_db(
-#             session=session, book=book, book_update=book_update, partial=True
-#         )
-#     except ErrorInData as exp:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail=f"{exp}",
-#         )
-#     else:
-#         return res
-#
-#
-# @router.delete("/{book_id}/", status_code=status.HTTP_204_NO_CONTENT)
-# async def delete_book(
-#     user: "User" = Depends(current_superuser_user),
-#     book: Book = Depends(book_by_id),
-#     session: AsyncSession = Depends(get_async_session),
-# ) -> None:
-#     try:
-#         await delete_book_db(session=session, book=book)
-#     except ExceptDB as exp:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail=f"{exp}",
-#         )
+@router.get(
+    "/list",
+    response_model=list[OutBookSchemas],
+    status_code=status.HTTP_200_OK,
+)
+async def get_list_books(
+    session: AsyncSession = Depends(get_async_session),
+    user: "User" = Depends(current_user_authorization),
+):
+    return await get_books(session=session)
+
+
+@router.get("/{book_id}/", response_model=OutBookSchemas)
+async def get_book(
+    user: "User" = Depends(current_user_authorization),
+    book: Book = Depends(book_by_id),
+):
+    return book
+
+
+@router.put("/{book_id}/", response_model=OutBookSchemas)
+async def update_book(
+    book_update: BookUpdateSchemas,
+    user: "User" = Depends(current_superuser_user),
+    book: Book = Depends(book_by_id),
+    session: AsyncSession = Depends(get_async_session),
+):
+    try:
+        res = await update_book_db(session=session, book=book, book_update=book_update)
+    except ErrorInData as exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{exp}",
+        )
+    else:
+        return res
+
+
+@router.patch("/{book_id}/", response_model=OutBookSchemas)
+async def update_book(
+    book_update: BookUpdatePartialSchemas,
+    user: "User" = Depends(current_superuser_user),
+    book: Book = Depends(book_by_id),
+    session: AsyncSession = Depends(get_async_session),
+):
+    try:
+        res = await update_book_db(
+            session=session, book=book, book_update=book_update, partial=True
+        )
+    except ErrorInData as exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{exp}",
+        )
+    else:
+        return res
+
+
+@router.delete("/{book_id}/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_book(
+    user: "User" = Depends(current_superuser_user),
+    book: Book = Depends(book_by_id),
+    session: AsyncSession = Depends(get_async_session),
+) -> None:
+    try:
+        await delete_book_db(session=session, book=book)
+    except ExceptDB as exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{exp}",
+        )
