@@ -1,13 +1,6 @@
 from typing import Optional
-from datetime import datetime
-import re
 
-from pydantic import BaseModel, EmailStr, ConfigDict, Field, field_validator
-
-PATTERN_PASSWORD = (
-    r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!"#\$%&\(\)\*\+,-\.\/:;<=>\?@[\]\^_'
-    r"`\{\|}~])[a-zA-Z0-9!\$%&\(\)\*\+,-\.\/:;<=>\?@[\]\^_`\{\|}~]{8,}$"
-)
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 
 
 class UserBaseSchemas(BaseModel):

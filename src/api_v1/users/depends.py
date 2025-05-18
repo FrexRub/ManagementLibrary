@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.config import COOKIE_NAME
 from src.core.database import get_async_session
 from src.core.jwt_utils import decode_jwt
-from src.users.crud import get_user_by_id
-from src.users.models import User
+from src.api_v1.users.crud import get_user_by_id
+from src.models.user import User
 
 cookie_scheme = APIKeyCookie(name=COOKIE_NAME)
 
@@ -25,7 +25,7 @@ async def current_user_authorization(
         )
 
     try:
-        payload = decode_jwt(token)
+        payload = await decode_jwt(token)
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authorized"

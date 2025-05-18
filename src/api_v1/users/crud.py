@@ -51,7 +51,10 @@ async def find_user_by_email(session: AsyncSession, email: str) -> Optional[User
 
 
 async def create_user(session: AsyncSession, user_data: UserCreateSchemas) -> User:
-    logger.info("Start create user by name %s" % user_data.username)
+    logger.info(
+        "Start create user by name %s with email %s"
+        % (user_data.username, user_data.email)
+    )
     result: Optional[User] = await find_user_by_email(
         session=session, email=user_data.email
     )
@@ -59,28 +62,16 @@ async def create_user(session: AsyncSession, user_data: UserCreateSchemas) -> Us
         raise EmailInUse("The email address is already in use")
 
     try:
-        result: User = await get_user_from_db(
-            session=session, username=user_data.username
-        )
-    except NotFindUser:
-        pass
-    else:
-        raise ExceptUser(
-            "The user with the username: %s is already registered" % user_data.username
-        )
-
-    try:
         new_user: User = User(**user_data.model_dump())
     except ValueError as exc:
         raise ErrorInData(exc)
-    else:
-        new_user.hashed_password = create_hash_password(
-            new_user.hashed_password
-        ).decode()
-        session.add(new_user)
-        await session.commit()
-        logger.info("User by name %s created" % user_data.username)
-        return new_user
+
+    session.add(new_user)
+    await session.commit()
+    logger.info(
+        "User by name %s  with email %s created" % (user_data.username, user_data.email)
+    )
+    return new_user
 
 
 async def get_users(session: AsyncSession) -> list[User]:

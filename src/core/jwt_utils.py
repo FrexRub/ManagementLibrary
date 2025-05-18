@@ -86,20 +86,20 @@ async def decode_jwt(
 
 
 async def create_jwt(
-    user: str,
+    user_id: str,
     expire_minutes: Optional[int] = None,
 ) -> str:
     """
     Создание jwt-токен
-    :param user: данные пользователя
-    :type user: str
+    :param user_id: id пользователя
+    :type user_id: str
     :param expire_minutes: время экспирации токена
-    :type user: Optional[int]
+    :type expire_minutes: Optional[int]
     :rtype: str
     :return: jwt-токен
     """
     payload = dict()
-    payload["sub"] = user
+    payload["sub"] = user_id
     if expire_minutes is None:
         expire_minutes = setting.auth_jwt.access_token_expire_minutes
     expire = datetime.now(timezone.utc) + timedelta(minutes=expire_minutes)

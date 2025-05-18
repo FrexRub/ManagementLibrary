@@ -6,15 +6,21 @@ from src.core.config import COOKIE_NAME
 from src.core.database import get_async_session
 from src.core.exceptions import (
     NotFindUser,
+    EmailInUse,
+    ErrorInData,
 )
 from src.core.jwt_utils import create_jwt, validate_password
 from src.api_v1.users.crud import (
     get_user_from_db,
+    create_user,
 )
 from src.models.user import User
+from src.api_v1.users.depends import current_superuser_user
 from src.api_v1.users.schemas import (
     LoginSchemas,
     AuthUserSchemas,
+    OutUserSchemas,
+    UserCreateSchemas,
 )
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -61,29 +67,25 @@ def logout(response: Response):
     response.delete_cookie(COOKIE_NAME)
 
 
-# @router.post(
-#     "/create", response_model=OutUserSchemas, status_code=status.HTTP_201_CREATED
-# )
-# async def user_registration(
-#     user: UserCreateSchemas,
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     try:
-#         result: User = await create_user(session=session, user_data=user)
-#     except EmailInUse:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail="The email address is already in use",
-#         )
-#     except ExceptUser:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail=f"The user with the username: {user.username} is already registered",
-#         )
-#     except ErrorInData:
-#         pass
-#     else:
-#         return result
+@router.post(
+    "/create", response_model=OutUserSchemas, status_code=status.HTTP_201_CREATED
+)
+async def user_registration(
+    user: UserCreateSchemas,
+    session: AsyncSession = Depends(get_async_session),
+    superuser_user: User = Depends(current_superuser_user),
+):
+    try:
+        result: User = await create_user(session=session, user_data=user)
+    except EmailInUse:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The email address is already in use",
+        )
+    except ErrorInData:
+        pass
+    else:
+        return result
 
 
 # @router.get(
