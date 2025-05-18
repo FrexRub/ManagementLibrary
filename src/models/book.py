@@ -1,12 +1,11 @@
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, String, Integer, ForeignKey, CheckConstraint
+from sqlalchemy import DateTime, String, Integer, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from src.models.base import Base
 
 if TYPE_CHECKING:
-    from src.models.author import Author
     from src.models.library import BorrowedBooks
 
 
@@ -14,7 +13,11 @@ class Book(Base):
     __table_args__ = (CheckConstraint("count > 0", name="count_positive"),)
 
     title: Mapped[str] = mapped_column(String(100), index=True)
-    id_author: Mapped[int] = mapped_column(ForeignKey("authors.id", ondelete="CASCADE"))
+    author: Mapped[str] = mapped_column(
+        String(100),
+        index=True,
+        nullable=False,
+    )
     release_date: Mapped[DateTime] = mapped_column(DateTime)
     isbn: Mapped[Optional[str]] = mapped_column(
         String(17),
@@ -28,7 +31,6 @@ class Book(Base):
         nullable=False,
     )
 
-    author: Mapped["Author"] = relationship(back_populates="books")
     users: Mapped[list["BorrowedBooks"]] = relationship(back_populates="book")
 
     @validates("count")

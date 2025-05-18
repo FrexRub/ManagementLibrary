@@ -15,7 +15,7 @@ class User(Base):
     hashed_password: Mapped[Optional[str]]
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    # books: Mapped[list["BorrowedBooks"]] = relationship(back_populates="user")
+    books: Mapped[list["BorrowedBooks"]] = relationship(back_populates="user")
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(id={self.id}, email={self.email!r})"

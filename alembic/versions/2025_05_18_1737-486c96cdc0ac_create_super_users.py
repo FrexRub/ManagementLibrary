@@ -1,8 +1,8 @@
-"""create users
+"""create super users
 
-Revision ID: eee11af4558c
-Revises: e8bc0666bfb9
-Create Date: 2025-05-18 13:50:12.582871
+Revision ID: 486c96cdc0ac
+Revises: 3494d3cf70e0
+Create Date: 2025-05-18 17:37:31.523457
 
 """
 
@@ -14,9 +14,10 @@ import bcrypt
 
 from src.models.user import User
 
+
 # revision identifiers, used by Alembic.
-revision: str = "eee11af4558c"
-down_revision: Union[str, None] = "e8bc0666bfb9"
+revision: str = "486c96cdc0ac"
+down_revision: Union[str, None] = "3494d3cf70e0"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

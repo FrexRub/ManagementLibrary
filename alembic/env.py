@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from src.core.config import setting
 from src.models import user
-from src.models import author
 from src.models import book
 from src.models import library
 
