@@ -55,18 +55,12 @@ async def current_superuser_user(
 async def user_by_id(
     id_user: Annotated[int, Path],
     session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user_authorization),
+    superuser_user: User = Depends(current_superuser_user),
 ) -> User:
-    find_user: Optional[User] = await get_user_by_id(session=session, id_user=id_user)
-    if find_user is None:
+    user: Optional[User] = await get_user_by_id(session=session, id_user=id_user)
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with id {id_user} not found!",
         )
-    if user.id == id_user or user.is_superuser:
-        return find_user
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough rights",
-        )
+    return user

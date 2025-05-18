@@ -11,10 +11,8 @@ from src.core.exceptions import (
     UniqueViolationError,
     NotFindUser,
     EmailInUse,
-    ExceptUser,
     ErrorInData,
 )
-from src.core.jwt_utils import create_hash_password
 from src.models.user import User
 from src.api_v1.users.schemas import (
     UserCreateSchemas,

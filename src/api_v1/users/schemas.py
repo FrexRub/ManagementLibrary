@@ -8,7 +8,7 @@ class UserBaseSchemas(BaseModel):
     email: EmailStr
 
 
-class UserUpdateSchemas(BaseModel):
+class UserUpdateSchemas(UserBaseSchemas):
     pass
 
 

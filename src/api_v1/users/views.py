@@ -8,19 +8,24 @@ from src.core.exceptions import (
     NotFindUser,
     EmailInUse,
     ErrorInData,
+    UniqueViolationError,
 )
 from src.core.jwt_utils import create_jwt, validate_password
 from src.api_v1.users.crud import (
     get_user_from_db,
     create_user,
+    update_user_db,
+    delete_user_db,
 )
 from src.models.user import User
-from src.api_v1.users.depends import current_superuser_user
+from src.api_v1.users.depends import current_superuser_user, user_by_id
 from src.api_v1.users.schemas import (
     LoginSchemas,
     AuthUserSchemas,
     OutUserSchemas,
     UserCreateSchemas,
+    UserUpdateSchemas,
+    UserUpdatePartialSchemas,
 )
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -88,69 +93,49 @@ async def user_registration(
         return result
 
 
-# @router.get(
-#     "/list",
-#     response_model=Page[OutUserSchemas],
-#     status_code=status.HTTP_200_OK,
-# )
-# async def get_list_users(
-#     session: AsyncSession = Depends(get_async_session),
-#     user: User = Depends(current_superuser_user),
-# ):
-#     return paginate(await get_users(session=session))
-#
-#
-# @router.get(
-#     "/{id_user}/", response_model=OutUserSchemas, status_code=status.HTTP_200_OK
-# )
-# async def get_user(user: User = Depends(user_by_id)):
-#     return user
-#
-#
-# @router.put(
-#     "/{id_user}/", response_model=OutUserSchemas, status_code=status.HTTP_200_OK
-# )
-# async def update_user(
-#     user_update: UserUpdateSchemas,
-#     user: User = Depends(user_by_id),
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     try:
-#         res = await update_user_db(session=session, user=user, user_update=user_update)
-#     except UniqueViolationError:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail=f"Duplicate email",
-#         )
-#     else:
-#         return res
-#
-#
-# @router.patch(
-#     "/{id_user}/", response_model=OutUserSchemas, status_code=status.HTTP_200_OK
-# )
-# async def update_user_partial(
-#     user_update: UserUpdatePartialSchemas,
-#     user: User = Depends(user_by_id),
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     try:
-#         res = await update_user_db(
-#             session=session, user=user, user_update=user_update, partial=True
-#         )
-#     except UniqueViolationError:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail=f"Duplicate email",
-#         )
-#     else:
-#         return res
-#
-#
-# @router.delete("/{id_user}/", status_code=status.HTTP_204_NO_CONTENT)
-# async def delete_user(
-#     user: User = Depends(user_by_id),
-#     super_user: User = Depends(current_superuser_user),
-#     session: AsyncSession = Depends(get_async_session),
-# ) -> None:
-#     await delete_user_db(session=session, user=user)
+@router.put(
+    "/{id_user}/", response_model=OutUserSchemas, status_code=status.HTTP_200_OK
+)
+async def update_user(
+    user_update: UserUpdateSchemas,
+    user: User = Depends(user_by_id),
+    session: AsyncSession = Depends(get_async_session),
+):
+    try:
+        res = await update_user_db(session=session, user=user, user_update=user_update)
+    except UniqueViolationError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Duplicate email",
+        )
+    else:
+        return res
+
+
+@router.patch(
+    "/{id_user}/", response_model=OutUserSchemas, status_code=status.HTTP_200_OK
+)
+async def update_user_partial(
+    user_update: UserUpdatePartialSchemas,
+    user: User = Depends(user_by_id),
+    session: AsyncSession = Depends(get_async_session),
+):
+    try:
+        res = await update_user_db(
+            session=session, user=user, user_update=user_update, partial=True
+        )
+    except UniqueViolationError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Duplicate email",
+        )
+    else:
+        return res
+
+
+@router.delete("/{id_user}/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    user: User = Depends(user_by_id),
+    session: AsyncSession = Depends(get_async_session),
+) -> None:
+    await delete_user_db(session=session, user=user)
