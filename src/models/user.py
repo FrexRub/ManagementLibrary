@@ -5,6 +5,7 @@ from sqlalchemy import Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
+from src.models.library import ReceivingBook
 
 if TYPE_CHECKING:
     from src.models.library import ReceivingBook

@@ -8,8 +8,8 @@ class BookBaseSchemas(BaseModel):
     title: str = Field(max_length=100)
     author: str = Field(max_length=100)
     release_date: date
-    isbn: str = Field(max_length=17)
-    count: int = Field(ge=1)
+    isbn: Optional[str] = Field(None, max_length=17)
+    count: int = Field(default=1, ge=1)
 
 
 class BookUpdateSchemas(BookBaseSchemas):
