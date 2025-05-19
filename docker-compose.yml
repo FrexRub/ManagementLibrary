@@ -14,7 +14,7 @@ services:
   app:
     build:
       dockerfile: ./Dockerfile
-    command: ["docker/app.sh"]
+    command: [ "docker/app.sh" ]
     ports:
       - 8000:8000
     restart: always
@@ -25,8 +25,22 @@ services:
     networks:
       - net
 
+  nginx_lib:
+    container_name: lib-nginx
+    build: ./nginx
+    volumes:
+      - log_nginx:/var/log/nginx
+    ports:
+      - 80:80
+    restart: always
+    depends_on:
+      - app
+    networks:
+      - net
+
 volumes:
   postgres_volume:
+  log_nginx:
 
 networks:
   net:
