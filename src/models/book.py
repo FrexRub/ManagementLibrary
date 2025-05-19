@@ -11,9 +11,13 @@ if TYPE_CHECKING:
 
 
 class Book(Base):
-    __table_args__ = (CheckConstraint("count >= 0", name="count_positive"),
-                      CheckConstraint('release_date >= 1000 AND release_date <= 9999',
-                                      name="release_date_four_digits"),)
+    __table_args__ = (
+        CheckConstraint("count >= 0", name="count_positive"),
+        CheckConstraint(
+            "release_date >= 1000 AND release_date <= 9999",
+            name="release_date_four_digits",
+        ),
+    )
 
     title: Mapped[str] = mapped_column(String(100), index=True)
     author: Mapped[str] = mapped_column(

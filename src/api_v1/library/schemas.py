@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, field_serializer, Field, ConfigDict
 
@@ -30,3 +31,8 @@ class ReceivingResultSchemas(BaseModel):
 
 class RecevingBookUserSchemas(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
+    title: str
+    author: str
+    release_date: Optional[int]
+    isbn: Optional[str]

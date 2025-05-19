@@ -3,10 +3,10 @@ from fastapi import Path, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_async_session
-from src.books.crud import get_book
+from src.api_v1.books.crud import get_book
 
 if TYPE_CHECKING:
-    from src.books.models import Book
+    from src.models.book import Book
 
 
 async def book_by_id(

@@ -88,9 +88,7 @@ async def update_user_db(
 ) -> User:
     logger.info("Start update user")
     try:
-        for name, value in user_update.model_dump(
-            exclude_unset=partial
-        ).items():  # Преобразовываем объект в словарь
+        for name, value in user_update.model_dump(exclude_unset=partial).items():
             setattr(user, name, value)
         await session.commit()
     except IntegrityError:

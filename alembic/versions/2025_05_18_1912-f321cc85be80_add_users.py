@@ -23,13 +23,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def create_hash_password(password: str) -> bytes:
-    """
-    РЎРѕР·РґР°РЅРёРµ С…РµС€ РїР°СЂРѕР»СЏ
-    :param password: РїР°СЂРѕР»СЊ
-    :type password: str
-    :rtype: bytes
-    :return: С…РµС€ Р·РЅР°С‡РµРЅРёРµ РїР°СЂРѕР»СЏ
-    """
     salt = bcrypt.gensalt()
     pwd_bytes: bytes = password.encode()
     return bcrypt.hashpw(pwd_bytes, salt)

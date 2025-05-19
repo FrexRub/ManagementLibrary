@@ -49,9 +49,7 @@ async def update_book_db(
 ) -> Book:
     logger.info("Start update book")
     try:
-        for name, value in book_update.model_dump(
-            exclude_unset=partial
-        ).items():  # Преобразовываем объект в словарь
+        for name, value in book_update.model_dump(exclude_unset=partial).items():
             setattr(book, name, value)
         await session.commit()
     except ValueError as exc:

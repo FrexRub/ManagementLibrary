@@ -6,11 +6,13 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 class BookBaseSchemas(BaseModel):
     title: str = Field(max_length=100)
     author: str = Field(max_length=100)
-    release_date: Optional[int] = Field(None, description="Число длиной 4 цифры (от 1000 до 9999)")
+    release_date: Optional[int] = Field(
+        None, description="Число длиной 4 цифры (от 1000 до 9999)"
+    )
     isbn: Optional[str] = Field(None, max_length=17)
-    count: int = Field(default=1, ge=1)
+    count: int = Field(default=1, ge=0)
 
-    @field_validator('release_date')
+    @field_validator("release_date")
     def validate_length(cls, val):
         if val is not None:
             if not (1000 <= val <= 9999):
@@ -29,7 +31,7 @@ class BookUpdatePartialSchemas(BookUpdateSchemas):
     isbn: Optional[str] = None
     count: Optional[int] = None
 
-    @field_validator('release_date')
+    @field_validator("release_date")
     def validate_length(cls, val):
         if val is not None:
             if not (1000 <= val <= 9999):

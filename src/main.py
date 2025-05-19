@@ -1,7 +1,8 @@
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 
 import uvicorn
 
@@ -15,7 +16,7 @@ description = """
 
     * **Read users**
     * **Create/Update/Remove users**
-    * **book delivery/return**
+    * **book borrow/return**
 """
 
 app = FastAPI(
@@ -37,6 +38,12 @@ app.include_router(router=api_router)
 
 configure_logging(logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def index(response: Response):
+    return HTMLResponse("<h2> Library Management </h2>")
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)

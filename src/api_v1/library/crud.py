@@ -1,9 +1,9 @@
 import logging
-from typing import Optional, Union
+from typing import Optional
 from datetime import datetime
 
 from sqlalchemy import select, and_
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import selectinload
 from sqlalchemy.engine import Result
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,19 +13,17 @@ from src.models.user import User
 from src.models.library import ReceivingBook
 from src.api_v1.library.schemas import (
     ReceivingCreateSchemas,
-    ReceivingReturnSchemas,
 )
 from src.core.exceptions import ErrorInData, ExceptDB
 from src.core.config import configure_logging
-from src.api_v1.users.crud import get_user_by_id
 
 configure_logging(logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 async def create_receiving(
-        session: AsyncSession,
-        borrow: ReceivingCreateSchemas,
+    session: AsyncSession,
+    borrow: ReceivingCreateSchemas,
 ) -> ReceivingBook:
     logger.info("Start create borrow book")
 
@@ -47,13 +45,14 @@ async def create_receiving(
         raise ErrorInData("Not find user")
 
     stmt = select(ReceivingBook).where(
-        ReceivingBook.reader_id == user_id,
-        ReceivingBook.return_date.is_(None)
+        ReceivingBook.reader_id == user_id, ReceivingBook.return_date.is_(None)
     )
     result: Result = await session.execute(stmt)
     books_user = result.scalars().all()
 
-    logger.info("Количество книг у пользователя с id: %s - %s штук" % (user_id, len(books_user)))
+    logger.info(
+        "Количество книг у пользователя с id: %s - %s штук" % (user_id, len(books_user))
+    )
 
     if len(books_user) >= 3:
         logger.info("The user has 3 books")
@@ -77,7 +76,7 @@ async def create_receiving(
 
 
 async def return_receiving(
-        session: AsyncSession, receiving: ReceivingCreateSchemas
+    session: AsyncSession, receiving: ReceivingCreateSchemas
 ) -> str:
     logger.info("Start return book in library")
     user_id: int = receiving.model_dump()["reader_id"]
