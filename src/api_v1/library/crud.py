@@ -1,6 +1,6 @@
 import logging
 from typing import Optional, Union
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 from sqlalchemy import select, and_
 from sqlalchemy.orm import joinedload, selectinload
@@ -77,35 +77,41 @@ async def create_receiving(
     return receiving_book
 
 
-# async def return_receiving(
-#     session: AsyncSession, book_in: ReceivingReturnSchemas, user_in: User
-# ) -> str:
-#     logger.info("Start return book in library")
-#     book_id: int = book_in.model_dump()["book_id"]
-#     stmt = select(ReceivingBook).filter(
-#         and_(ReceivingBook.user_id == user_in.id, ReceivingBook.book_id == book_id)
-#     )
-#     result: Result = await session.execute(stmt)
-#     books_user = result.scalars().first()
-#     if books_user is None:
-#         logger.info("The user does not have this book")
-#         raise ErrorInData("The user does not have this book")
-#
-#     book: Optional[Book] = await session.get(Book, book_id)
-#     if book is None:
-#         logger.info("Not find book")
-#         raise ErrorInData("Not find book")
-#
-#     try:
-#         await session.delete(books_user)
-#         book.count += 1
-#         await session.commit()
-#     except SQLAlchemyError as exc:
-#         logger.exception("Error in data base %s", exc)
-#         await session.rollback()
-#         raise ExceptDB(exc)
-#     return "The book has been returned to the library"
-#
+async def return_receiving(
+    session: AsyncSession, receiving: ReceivingCreateSchemas
+) -> str:
+    logger.info("Start return book in library")
+    user_id: int = receiving.model_dump()["reader_id"]
+    book_id: int = receiving.model_dump()["book_id"]
+
+    stmt = select(ReceivingBook).filter(
+        and_(ReceivingBook.reader_id == user_id, ReceivingBook.book_id == book_id)
+    )
+    result: Result = await session.execute(stmt)
+    books_user: ReceivingBook = result.scalars().first()
+    if books_user is None:
+        logger.info("The user does not have this book")
+        raise ErrorInData("The user does not have this book")
+
+    if books_user.return_date:
+        logger.info("The book has already been returned")
+        raise ErrorInData("The book has already been returned")
+
+    book: Optional[Book] = await session.get(Book, book_id)
+    if book is None:
+        logger.info("Not find book")
+        raise ErrorInData("Not find book")
+
+    try:
+        books_user.return_date = datetime.today()
+        book.count += 1
+        await session.commit()
+    except SQLAlchemyError as exc:
+        logger.exception("Error in data base %s", exc)
+        await session.rollback()
+        raise ExceptDB(exc)
+    return "The book has been returned to the library"
+
 #
 # async def get_books(session: AsyncSession, user_id: int) -> list[OutBookFoolSchemas]:
 #     logger.info("Getting a list of books user %s" % user_id)

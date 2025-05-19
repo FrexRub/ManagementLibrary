@@ -12,7 +12,7 @@ from src.core.exceptions import (
 )
 from src.api_v1.library.crud import (
     create_receiving,
-    # return_receiving,
+    return_receiving,
     # get_books,
 )
 from src.api_v1.users.depends import (
@@ -26,9 +26,8 @@ from src.models.library import ReceivingBook
 from src.api_v1.library.schemas import (
     ReceivingCreateSchemas,
     OutReceivingSchemas,
-    ReceivingReturnSchemas,
+    ReceivingResultSchemas,
 )
-
 
 router = APIRouter(prefix="/library", tags=["Library"])
 
@@ -39,9 +38,9 @@ router = APIRouter(prefix="/library", tags=["Library"])
     status_code=status.HTTP_201_CREATED,
 )
 async def borrow_book(
-    borrow: ReceivingCreateSchemas,
-    session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user_authorization),
+        borrow: ReceivingCreateSchemas,
+        session: AsyncSession = Depends(get_async_session),
+        user: User = Depends(current_user_authorization),
 ):
     try:
         result: ReceivingBook = await create_receiving(session=session, borrow=borrow)
@@ -59,33 +58,33 @@ async def borrow_book(
         return result
 
 
-# @router.post(
-#     "/return",
-#     response_class=Response,
-#     status_code=status.HTTP_201_CREATED,
-# )
-# async def return_book(
-#     book_in: ReceivingReturnSchemas,
-#     session: AsyncSession = Depends(get_async_session),
-#     user: User = Depends(current_user_authorization),
-# ):
-#     try:
-#         result: str = await return_receiving(
-#             session=session, book_in=book_in, user_in=user
-#         )
-#     except ExceptDB as exp:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail=f"{exp}",
-#         )
-#     except ErrorInData as exp:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail=f"{exp}",
-#         )
-#     else:
-#         return result
-#
+@router.post(
+    "/return",
+    response_model=ReceivingResultSchemas,
+    status_code=status.HTTP_201_CREATED,
+)
+async def return_book(
+        receiving: ReceivingCreateSchemas,
+        session: AsyncSession = Depends(get_async_session),
+        user: User = Depends(current_user_authorization),
+):
+    try:
+        result: str = await return_receiving(
+            session=session, receiving=receiving
+        )
+    except ExceptDB as exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{exp}",
+        )
+    except ErrorInData as exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{exp}",
+        )
+    else:
+        return ReceivingResultSchemas(result=result)
+
 #
 # @router.get("/on-hands", response_model=list[OutBookFoolSchemas])
 # async def get_books_user(

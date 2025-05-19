@@ -27,3 +27,7 @@ class OutReceivingSchemas(ReceivingBaseSchemas):
     # @field_serializer("return_date")
     # def serialize_date_of_return(self, dt: datetime, _info):
     #     return dt.strftime("%d-%b-%Y")
+
+
+class ReceivingResultSchemas(BaseModel):
+    result: str
