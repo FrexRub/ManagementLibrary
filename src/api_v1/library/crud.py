@@ -19,14 +19,13 @@ from src.core.exceptions import ErrorInData, ExceptDB
 from src.core.config import configure_logging
 from src.api_v1.users.crud import get_user_by_id
 
-
 configure_logging(logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 async def create_receiving(
-    session: AsyncSession,
-    borrow: ReceivingCreateSchemas,
+        session: AsyncSession,
+        borrow: ReceivingCreateSchemas,
 ) -> ReceivingBook:
     logger.info("Start create borrow book")
 
@@ -78,7 +77,7 @@ async def create_receiving(
 
 
 async def return_receiving(
-    session: AsyncSession, receiving: ReceivingCreateSchemas
+        session: AsyncSession, receiving: ReceivingCreateSchemas
 ) -> str:
     logger.info("Start return book in library")
     user_id: int = receiving.model_dump()["reader_id"]
@@ -112,79 +111,26 @@ async def return_receiving(
         raise ExceptDB(exc)
     return "The book has been returned to the library"
 
-#
-# async def get_books(session: AsyncSession, user_id: int) -> list[OutBookFoolSchemas]:
-#     logger.info("Getting a list of books user %s" % user_id)
-#     try:
-#         stmt = select(ReceivingBook).filter(ReceivingBook.user_id == user_id)
-#         result: Result = await session.execute(stmt)
-#         list_books = result.scalars().all()
-#
-#     except SQLAlchemyError as exc:
-#         logger.exception("Error in data base %s", exc)
-#         raise ExceptDB("Error in data base")
-#     else:
-#         list_id_books = list()
-#         for book in list_books:
-#             list_id_books.append(book.book_id)
-#
-#         stmt = (
-#             select(Book)
-#             .filter(Book.id.in_(list_id_books))
-#             .options(joinedload(Book.author))
-#             .order_by(Book.id)
-#         )
-#         result: Result = await session.execute(stmt)
-#         books = result.scalars().all()
-#
-#         list_books = list()
-#         for book in books:  # type: Book
-#             list_books.append(await book_to_schema(session=session, book=book))
-#
-#         return list_books
 
+async def get_books(session: AsyncSession, user_id: int) -> list[Book]:
+    logger.info("Getting a list of books user %s" % user_id)
+    try:
+        stmt = (
+            select(User)
+            .options(selectinload(User.books).joinedload(ReceivingBook.book))
+            .filter(User.id == user_id)
+        )
 
-# async def get_book(session: AsyncSession, book_id: int) -> Optional[Book]:
-#     logger.info("Getting genre by id %d" % book_id)
-#     return await session.get(Book, book_id)
-#
-#
-# async def update_book_db(
-#     session: AsyncSession,
-#     book: Book,
-#     book_update: Union[BookUpdateSchemas, BookUpdatePartialSchemas],
-#     partial: bool = False,
-# ) -> Book:
-#     logger.info("Start update book")
-#     try:
-#         for name, value in book_update.model_dump(exclude_unset=partial).items():
-#             if name == "id_author" and await session.get(Author, value) is None:
-#                 logger.info("Not find author with id %s" % value)
-#                 raise ErrorInData(f"Not find author with id {value}")
-#             elif name == "genres_ids":
-#                 for genre_id in value:
-#                     if await session.get(Genre, genre_id) is None:
-#                         logger.info("Not find genres with id %s" % genre_id)
-#                         raise ErrorInData(f"Not find genres with id {genre_id}")
-#                 else:
-#                     setattr(book, name, value)
-#             else:
-#                 setattr(book, name, value)
-#         await session.commit()
-#
-#     except SQLAlchemyError as exc:
-#         logger.exception("Error in data base %s", exc)
-#         await session.rollback()
-#         raise ExceptDB(exc)
-#     return book
-#
-#
-# async def delete_book_db(session: AsyncSession, book: Book) -> None:
-#     logger.info("Delete book by id %d" % book.id)
-#     try:
-#         await session.delete(book)
-#         await session.commit()
-#     except SQLAlchemyError as exc:
-#         logger.exception("Error in data base %s", exc)
-#         await session.rollback()
-#         raise ExceptDB(exc)
+        result: Result = await session.execute(stmt)
+        user: User = result.scalars().first()
+
+        list_book_user: list[Book] = list()
+        for i_book in user.books:  # tipe: ReceivingBook
+            if i_book.return_date is None:
+                list_book_user.append(i_book.book)
+
+    except SQLAlchemyError as exc:
+        logger.exception("Error in data base %s", exc)
+        raise ExceptDB("Error in data base")
+
+    return list_book_user

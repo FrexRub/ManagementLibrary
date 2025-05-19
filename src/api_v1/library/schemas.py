@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, field_serializer, Field
+from pydantic import BaseModel, field_serializer, Field, ConfigDict
 
 
 class ReceivingBaseSchemas(BaseModel):
@@ -18,16 +18,15 @@ class ReceivingReturnSchemas(ReceivingBaseSchemas):
 
 class OutReceivingSchemas(ReceivingBaseSchemas):
     borrow_date: datetime
-    # return_date: datetime
 
     @field_serializer("borrow_date")
     def serialize_date_of_issue(self, dt: datetime, _info):
         return dt.strftime("%d-%b-%Y")
 
-    # @field_serializer("return_date")
-    # def serialize_date_of_return(self, dt: datetime, _info):
-    #     return dt.strftime("%d-%b-%Y")
-
 
 class ReceivingResultSchemas(BaseModel):
     result: str
+
+
+class RecevingBookUserSchemas(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
