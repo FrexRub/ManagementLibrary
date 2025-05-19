@@ -8,21 +8,16 @@ from sqlalchemy.engine import Result
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.authors.crud import get_author
-from src.books.models import Book
-from src.users.models import User
-from src.library.models import ReceivingBook
-from src.authors.models import Author
-from src.genres.models import Genre
-from src.library.schemas import (
+from src.models.book import Book
+from src.models.user import User
+from src.models.library import ReceivingBook
+from src.api_v1.library.schemas import (
     ReceivingCreateSchemas,
     ReceivingReturnSchemas,
 )
 from src.core.exceptions import ErrorInData, ExceptDB
 from src.core.config import configure_logging
-from src.books.crud import book_to_schema
-from src.books.schemas import OutBookFoolSchemas
-from src.users.crud import get_user_by_id
+from src.api_v1.users.crud import get_user_by_id
 
 
 configure_logging(logging.INFO)
@@ -34,55 +29,49 @@ async def create_receiving(
     borrow: ReceivingCreateSchemas,
 ) -> ReceivingBook:
     logger.info("Start create borrow book")
-    book: Optional[Book] = await session.get(Book, borrow.model_dump()["book_id"])
 
+    user_id: int = borrow.model_dump()["reader_id"]
+    book_id: int = borrow.model_dump()["book_id"]
+
+    book: Optional[Book] = await session.get(Book, book_id)
     if book is None:
         logger.info("Not find book")
         raise ErrorInData("Not find book")
-
-    user_id: int = borrow.model_dump()["reader_id"]
-    user: Optional[User] = await session.get(User, user_id)
-
-    if user is None:
-        logger.info("Not find user")
-        raise ErrorInData("Not find user")
-
-    # stmt = select(ReceivingBook).filter(
-    #     and_(ReceivingBook.reader_id == user_id, ReceivingBook.book_id == book_id)
-    # )
-
-    stmt = select(ReceivingBook).filter(ReceivingBook.reader_id == user_id)
-    result: Result = await session.execute(stmt)
-    books_user = result.scalars().all()
-    if len(books_user) >= 5:
-        logger.info("The user has 5 books")
-        raise ErrorInData("The user has 5 books")
 
     if book.count == 0:
         logger.info("These books are not available")
         raise ErrorInData("These books are not available")
 
-    stmt = (
-        select(User)
-        .filter(User.id == user_id)
-        .options(selectinload(User.books).joinedload(ReceivingBook.book))
+    user: Optional[User] = await session.get(User, user_id)
+    if user is None:
+        logger.info("Not find user")
+        raise ErrorInData("Not find user")
+
+    stmt = select(ReceivingBook).where(
+        ReceivingBook.reader_id == user_id,
+        ReceivingBook.return_date.is_(None)
     )
     result: Result = await session.execute(stmt)
-    current_user = result.scalars().first()
+    books_user = result.scalars().all()
 
-    date_of_return = datetime.now() + timedelta(days=14)
+    logger.info("Количество книг у пользователя с id: %s - %s штук" % (user_id, len(books_user)))
+
+    if len(books_user) >= 3:
+        logger.info("The user has 3 books")
+        raise ErrorInData("The user has 3 books")
+
     receiving_book = ReceivingBook(
-        date_of_return=date_of_return,
+        book_id=book_id,
+        reader_id=user_id,
     )
 
     try:
-        receiving_book.book = book
-        current_user.books.append(receiving_book)
+        session.add(receiving_book)
         book.count -= 1
         await session.commit()
     except IntegrityError as exc:
-        logger.warning("The user already has this book")
         await session.rollback()
+        logger.warning("The user already has this book")
         raise ExceptDB("The user already has this book")
 
     return receiving_book

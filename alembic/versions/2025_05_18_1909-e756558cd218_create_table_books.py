@@ -30,7 +30,7 @@ def upgrade() -> None:
         sa.Column("isbn", sa.String(length=17), nullable=True),
         sa.Column("count", sa.Integer(), server_default="1", nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.CheckConstraint("count > 0", name="count_positive"),
+        sa.CheckConstraint("count >= 0", name="count_positive"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("isbn"),
     )

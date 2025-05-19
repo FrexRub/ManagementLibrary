@@ -17,14 +17,13 @@ class ReceivingReturnSchemas(ReceivingBaseSchemas):
 
 
 class OutReceivingSchemas(ReceivingBaseSchemas):
-    reader_id: int
     borrow_date: datetime
-    return_date: datetime
+    # return_date: datetime
 
     @field_serializer("borrow_date")
     def serialize_date_of_issue(self, dt: datetime, _info):
         return dt.strftime("%d-%b-%Y")
 
-    @field_serializer("return_date")
-    def serialize_date_of_return(self, dt: datetime, _info):
-        return dt.strftime("%d-%b-%Y")
+    # @field_serializer("return_date")
+    # def serialize_date_of_return(self, dt: datetime, _info):
+    #     return dt.strftime("%d-%b-%Y")
