@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, String, Integer, CheckConstraint
+from sqlalchemy import String, Integer, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from src.models.base import Base

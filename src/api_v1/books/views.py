@@ -77,7 +77,7 @@ async def get_book(
 
 
 @router.put("/{book_id}/", response_model=OutBookSchemas)
-async def update_book(
+async def update_book_put(
     book_update: BookUpdateSchemas,
     user: "User" = Depends(current_superuser_user),
     book: Book = Depends(book_by_id),
@@ -90,12 +90,17 @@ async def update_book(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"{exp}",
         )
+    except ExceptDB as exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{exp}",
+        )
     else:
         return res
 
 
 @router.patch("/{book_id}/", response_model=OutBookSchemas)
-async def update_book(
+async def update_book_patch(
     book_update: BookUpdatePartialSchemas,
     user: "User" = Depends(current_superuser_user),
     book: Book = Depends(book_by_id),
@@ -106,6 +111,11 @@ async def update_book(
             session=session, book=book, book_update=book_update, partial=True
         )
     except ErrorInData as exp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{exp}",
+        )
+    except ExceptDB as exp:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"{exp}",
