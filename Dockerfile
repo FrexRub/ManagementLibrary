@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 RUN mkdir /app && mkdir /app/docker && mkdir /app/src && mkdir /app/alembic && mkdir /app/templates && mkdir /app/static && mkdir /app/upload
 WORKDIR /app
@@ -10,7 +10,7 @@ RUN pip install --upgrade pip poetry
 RUN poetry config virtualenvs.create false --local
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root
-RUN pip install openai==1.55.3 httpx==0.27.2 --force-reinstall
+
 
 COPY alembic.ini /app
 COPY alembic /app/alembic
