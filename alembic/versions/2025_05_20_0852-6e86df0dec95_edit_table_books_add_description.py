@@ -1,7 +1,7 @@
 """edit table books (add description)
 
 Revision ID: 6e86df0dec95
-Revises: 0ce3b5eb7b78
+Revises: 2d7929d0b253
 Create Date: 2025-05-20 08:52:40.414948
 
 """
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = "6e86df0dec95"
-down_revision: Union[str, None] = "0ce3b5eb7b78"
+down_revision: Union[str, None] = "2d7929d0b253"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

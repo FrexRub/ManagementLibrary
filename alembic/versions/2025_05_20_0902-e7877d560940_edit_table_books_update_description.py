@@ -1,7 +1,7 @@
 """edit table books (update description)
 
 Revision ID: e7877d560940
-Revises: 6e86df0dec95
+Revises: 0ce3b5eb7b78
 Create Date: 2025-05-20 09:02:51.564761
 
 """
@@ -16,7 +16,7 @@ from src.models.book import Book
 
 # revision identifiers, used by Alembic.
 revision: str = "e7877d560940"
-down_revision: Union[str, None] = "6e86df0dec95"
+down_revision: Union[str, None] = "0ce3b5eb7b78"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
