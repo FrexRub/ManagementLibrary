@@ -91,8 +91,8 @@ async def test_user_admin(db_session) -> User:
 
 @pytest_asyncio.fixture(loop_scope="session", scope="function")
 async def token_admin(
-    client: AsyncClient,
-    test_user_admin: User,
+        client: AsyncClient,
+        test_user_admin: User,
 ) -> str:
     token_response = await client.post(
         "/api/users/login",
@@ -100,3 +100,20 @@ async def token_admin(
     )
     token: str = token_response.json()["access_token"]
     return token
+
+
+@pytest_asyncio.fixture(loop_scope="session", scope="function")
+async def test_user(db_session) -> User:
+    stmt = select(User).filter(User.email == "petr@mail.com")
+    res: Result = await db_session.execute(stmt)
+    user: User = res.scalar_one_or_none()
+    if user is None:
+        user: User = User(
+            username="Petr",
+            email="petr@mail.com",
+        )
+
+        db_session.add(user)
+        await db_session.commit()
+
+    return user
