@@ -37,6 +37,10 @@ class Book(Base):
         server_default="1",
         nullable=False,
     )
+    description: Mapped[str] = mapped_column(
+        String(100),
+        nullable=True,
+    )
 
     users: Mapped[list["ReceivingBook"]] = relationship(back_populates="book")
 
